@@ -1,0 +1,15 @@
+name: pull_pppm_metrics
+title: pull_pppm_metrics
+username: ryan
+account: ryan
+server: colorado.posit.co
+hostUrl: https://colorado.posit.co/rsc/__api__
+appId: 16857
+bundleId: 76034
+url: https://colorado.posit.co/rsc/content/c9e29df8-0374-497b-89ce-bfc1b7371f9e/
+when: 1687178775.46439
+lastSyncTime: 1687178775.46441
+quarto_version: 1.3.361
+quarto_engines: knitr
+asMultiple: FALSE
+asStatic: FALSE

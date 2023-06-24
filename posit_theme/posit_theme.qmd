@@ -1,0 +1,91 @@
+---
+title: "Quarto - Posit Theme"
+format:
+  posit-html: default
+author: Ryan Johnson
+date: last-modified
+execute: 
+  echo: false
+  warning: false
+---
+
+```{r}
+# Install Packages
+library(pins)
+library(tidyverse)
+library(RColorBrewer)
+library(gt)
+
+# Define Posit Color/Theme
+posit_blue <- "#447099"
+posit_orange <- "#EE6331"
+posit_gray <- "#404041"
+posit_teal <- "#419599"
+posit_green <- "#72994E"
+posit_burgundy <- "#9A4665"
+
+posit_colors <- colorRampPalette(colors = c(posit_gray, posit_blue, posit_teal, posit_green, 
+                                            posit_burgundy, posit_orange))(6)
+
+```
+
+## Introduction
+
+Posit Package Manager (PPM) is a tool for organizing, centralizing, and distributing R and Python packages for your team. It can also be used to host internally developed R/Python packages. PPM comes with an experimental API which can be used to gather metrics regarding package downloads. In this report, we'll wuery the API within [Posit's Public Package Manager](https://packagemanager.posit.co/client/#/) to gather download statistics for three common R packages:
+
+-   [`ggplot2`](https://ggplot2.tidyverse.org/index.html) - system for declaratively creating graphics, based on [The Grammar of Graphics](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/ref=as_li_ss_tl).
+
+-   [`dplyr`](https://dplyr.tidyverse.org/) - grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.
+
+-   [`shiny`](https://shiny.posit.co/) - build interactive web applications (apps) straight from R.
+
+## Package Download Metrics
+
+```{r}
+# Connect to Posit Connect 
+board <- board_connect(auth = "envvar")
+
+# Read pin (total downloads)
+package_counts_30 <- pin_read(board, "ryan/package_counts_30")
+
+# Read pin (download per day)
+package_daily_counts_30 <- pin_read(board, "ryan/package_daily_counts_30")
+```
+
+```{r}
+# Create gt table
+package_counts_30 |> 
+  dplyr::arrange(desc(Downloads)) |> 
+  dplyr::select(Package, Downloads) |> 
+  gt() |> 
+  fmt_integer(Downloads) |> 
+  cols_label(
+    Package = md("**Package**"),
+    Downloads = md("**Downloads**")
+  ) |> 
+  tab_header(
+    title = "Package Downloads",
+    subtitle = "Total downloads over past 30 days"
+  ) |> 
+  data_color(
+    columns = Downloads,
+    palette = posit_colors
+  )
+```
+
+```{r}
+# Create plot
+ggplot(package_daily_counts_30, aes(x = as_date(date), y = downloads, color = package)) + 
+  geom_smooth(linewidth = 1.3) +
+  labs(
+    title = "Package Download Trends",
+    subtitle = "Past 30 days",
+    x = "",
+    y = "Daily Downloads",
+    color = "Package"
+  ) +
+  scale_x_date(date_labels = "%b %Y") +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  theme_minimal() +
+  scale_color_manual(values = posit_colors)
+```

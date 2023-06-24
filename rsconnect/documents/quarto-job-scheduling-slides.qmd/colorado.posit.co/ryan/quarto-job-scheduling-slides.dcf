@@ -1,0 +1,13 @@
+name: quarto-job-scheduling-slides
+title: quarto-job-scheduling-slides
+username: ryan
+account: ryan
+server: colorado.posit.co
+hostUrl: https://colorado.posit.co/rsc/__api__
+appId: 16858
+bundleId: 76037
+url: https://colorado.posit.co/rsc/content/16eb423d-c6dc-4c40-bc88-0fe1d352b156/
+when: 1687184337.60068
+lastSyncTime: 1687184337.60069
+asMultiple: FALSE
+asStatic: TRUE

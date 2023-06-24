@@ -1,0 +1,43 @@
+---
+title: "Boring Report"
+author: "Ryan Johnson"
+---
+
+```{r}
+library(tidyverse)
+library(pins)
+```
+
+## **Introduction**
+
+Posit Package Manager (PPM) is a tool for organizing, centralizing, and distributing R and Python packages for your team. It can also be used to host internally developed R/Python packages. PPM comes with an experimental API which can be used to gather metrics regarding package downloads. In this report, we'll query the API within [Posit's Public Package Manager](https://packagemanager.posit.co/client/#/) to gather download statistics for three common R packages:
+
+-   [`ggplot2`](https://ggplot2.tidyverse.org/index.html) - system for declaratively creating graphics, based on [The Grammar of Graphics](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/ref=as_li_ss_tl).
+
+-   [`dplyr`](https://dplyr.tidyverse.org/) - grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.
+
+-   [`shiny`](https://shiny.posit.co/) - build interactive web applications (apps) straight from R.
+
+## Package Download Metrics
+
+```{r}
+# Connect to Posit Connect 
+board <- board_connect(auth = "envvar")
+
+# Read pin (total downloads)
+package_counts_30 <- pin_read(board, "ryan/package_counts_30")
+
+# Read pin (download per day)
+package_daily_counts_30 <- pin_read(board, "ryan/package_daily_counts_30")
+```
+
+```{r}
+# Create gt table
+package_counts_30 
+```
+
+```{r}
+# Create plot
+ggplot(package_daily_counts_30, aes(x = as_date(date), y = downloads, color = package)) + 
+  geom_smooth(linewidth = 1.3)
+```

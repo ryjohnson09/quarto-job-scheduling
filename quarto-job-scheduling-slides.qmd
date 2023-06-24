@@ -1,0 +1,64 @@
+---
+format: revealjs
+editor: visual
+---
+
+![](images/PST-Concept-Map.jpg){fig-align="center"}
+
+------------------------------------------------------------------------
+
+![](images/PST-quarto-pins.jpg){fig-align="center"}
+
+------------------------------------------------------------------------
+
+![](images/logo-package-manager-full-color.png){fig-align="center" width="100%"}
+
+How popular is \[`insert package name`\] on our instance of Posit Package Manager?
+
+ 
+
+::: {style="text-align: center; font-size: 150%; color: #EE6331"}
+*PPM API - Great for internal auditing!*
+:::
+
+| Package Name | Downloads | Day        |
+|--------------|-----------|------------|
+| `ggplot2`    | 7031      | 2023-06-26 |
+| `ggplot2`    | 5992      | 2023-06-27 |
+| `ggplot2`    | 10346     | 2023-06-28 |
+
+------------------------------------------------------------------------
+
+## What is Quarto?
+
+::: columns
+::: {.column width="50%"}
+![](images/quarto.png){fig-align="center" width="381"}
+:::
+
+::: {.column width="50%" style="font-size: 80%"}
+-   **Open-source** scientific and technical publishing system.
+
+-   A **multi-language**, next-generation version of R Markdown.
+
+    -   R, Python, Julia, Observable
+
+-   Created using your favorite tools including VS Code, **RStudio**, Jupyter Lab, or any text editor.
+
+-   Used for creating articles, reports, presentations, websites, blogs, and books in HTML, PDF, MS Word, ePub, and more.
+:::
+:::
+
+------------------------------------------------------------------------
+
+![](images/workflow.jpg){fig-align="center"}
+
+ 
+
+::: {style="text-align: center; font-size: 125%; color: #9A4665"}
+[Posit's Public Package Manager (PPPM)](https://packagemanager.posit.co/client/#/)
+:::
+
+------------------------------------------------------------------------
+
+![](images/email.png){fig-align="center"}

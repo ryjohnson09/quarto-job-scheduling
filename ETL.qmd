@@ -1,0 +1,154 @@
+---
+title: "ETL"
+author: "Ryan Johnson"
+---
+
+```{r}
+library(tidyverse) # Data science packages
+library(httr)      # For API queries
+library(jsonlite)  # Parsing JSON files
+library(pins)      # Save data to Posit Connect as Pin
+```
+
+## Introduction
+
+For this workflow, we'll query the API from within Posit's Public Package Manager using two custom R functions:
+
+-   `get_package_count()`: Will extract the total number of downloads over the past N days (30 days by default), for a certain R package on [Posit's Public Package Manager](https://packagemanager.posit.co/client/#/).
+
+-   `get_package_count_history()`: Will extract the total number of package downloads per day from a defined start date. You can provide more than one package name (as a vector).
+
+```{r}
+get_package_count <- function(package_name, days = 30) {
+  base_url <- "https://packagemanager.posit.co/__api__/metrics/packages"
+  query_parameters <- list(
+    "_sourceType" = "r",
+    "_days" = days,
+    "_sort" = "count",
+    "_order" = "desc",
+    "_limit" = 10,
+    "name_like" = package_name
+  )
+  
+  response <- GET(base_url, query = query_parameters)
+  
+  if (http_type(response) != "application/json") {
+    stop("API did not return json")
+  }
+  
+  if (http_status(response)$category != "Success") {
+    stop("API request was not successful")
+  }
+  
+  content <- content(response, as = "text", encoding = "UTF-8")
+  data <- fromJSON(content, flatten = TRUE)
+  
+  package_data <- data[data$name == package_name,]
+  
+  if (nrow(package_data) == 0) {
+    return(0)
+  } else {
+    return(package_data$count)
+  }
+}
+
+#######################################################################
+
+get_package_count_history <- function(package_names, start_date = "2023-01-01") {
+  
+  # Empty table
+  package_counts <- tibble(package = character(),
+                           downloads = numeric(),
+                           date = ymd())
+  
+  # loop to add package counts
+  for (p in package_names) {
+    
+    for (d in seq(ymd(start_date), today() - days(1), by = "day")) {
+      
+      # If _days is <1, it get converted to 1. 
+      # https://github.com/rstudio/package-manager/blob/main/src/api/metrics/packages.go
+      # So need to make sure everything starts from yesterday (today() - days(1))
+      #  and we need to skip calculating today's downloads
+      
+      # If start date is yesterda, just extract yesterday's counts
+      if (as_date(d) == today() - days(1)){
+        final_downloads <- get_package_count(p, days = 1)
+    
+      } else {
+        # Calculate total downloads between start_date and today() - days(1)
+        total_downloads <- get_package_count(p, as.numeric(difftime(today(), 
+                                                                    as_date(d), 
+                                                                    units = "days")))
+        
+        # Calculate downloads between start_date + 1 and today
+        subtract_downloads <- get_package_count(p, as.numeric(difftime(today(), 
+                                                                       as_date(d) + days(1), 
+                                                                       units = "days")))
+        
+        # Get final counts
+        final_downloads <- total_downloads - subtract_downloads
+      }
+      
+      # Add results to package_counts table
+      new_row <- tibble(package = p,
+                        downloads = final_downloads,
+                        date = as_date(d))
+      
+      package_counts <- rbind(package_counts, new_row)
+    }
+  }
+  
+  return(package_counts)
+}
+```
+
+## Extract Package Download Metrics
+
+We'll focus on three common R packages:
+
+-   `ggplot2`: data visualization
+
+-   `dpylr`: data manipulation
+
+-   `shiny`: web application development using R
+
+The below code will extract total downloads for each of the three packages over the past 30 days. We'll also extract daily downloads over the same 30 days and print the first few rows of the data.
+
+```{r}
+# Total downloads over last 30 days
+ggplot2_counts_30 <- get_package_count("ggplot2", days = 30)
+dplyr_counts_30 <- get_package_count("dplyr", days = 30)
+shiny_counts_30 <- get_package_count("shiny", days = 30)
+
+# Combine into tibble
+package_counts_30 <- tibble(Package = c("ggplot2", "dplyr", "shiny"),
+                            Downloads = c(ggplot2_counts_30,
+                                          dplyr_counts_30,
+                                          shiny_counts_30),
+                            Days = rep(30, 3))
+package_counts_30
+
+```
+
+```{r}
+# Total downloads per day over last 30 days
+package_daily_counts_30 <- get_package_count_history(c("ggplot2", "dplyr", "shiny"), start_date = today() - days(30))
+
+head(package_daily_counts_30, n = 10)
+```
+
+## Pin Data to Connect
+
+The below code will take the two data frames `package_counts_30` and `package_daily_counts_30` and pin them to Posit Connect which will make them accessible to other content.
+
+```{r}
+# Connect to Posit Connect
+board <- board_connect()
+
+# Write package_counts_30 to Posit Connect
+pin_write(board, package_counts_30)
+
+# Write package_daily_counts_30 to Posit Connect
+pin_write(board, package_daily_counts_30)
+```
