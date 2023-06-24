@@ -1,6 +1,6 @@
 # Posit Team Demo: Quarto and Job Scheduling
 
-![](images/workflow.jpg){fig-align="center" width="462"}
+![](images/workflow.jpg)
 
 This is the companion GitHub repository for the June 2023 Posit Team Community demo. The goal of the demo was to extract R package download data from [Posit's Public Package Manager](https://packagemanager.posit.co/client/#/) (PPPM) using an Extract-Transform-Load (ETL) Quarto script and visualize the results using a custom-themed Quarto report. Below are the key files in workflow:
 
